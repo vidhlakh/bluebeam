@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 
@@ -15,7 +14,6 @@ func main() {
 	if err != nil {
 		log.Fatalln("err getiing current dir", err)
 	}
-	fmt.Println("Get pwd", pwd)
 	flag.StringVar(&file1, "f1", pwd+"/inputs/file1.txt", "Enter first file name")
 	flag.StringVar(&file2, "f2", pwd+"/inputs/file2.txt", "Enter second file name")
 	flag.StringVar(&delimiter, "d", " ", "Enter delimiter for the words")

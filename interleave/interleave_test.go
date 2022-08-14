@@ -1,6 +1,7 @@
 package interleave
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -81,6 +82,19 @@ func TestInterleaveFiles(t *testing.T) {
 				"g8", "f9", "g12", "f11", "g14", "f13", "g20",
 				"f21", "g32", "g34", "g36"},
 		},
+		{
+			name: "test case with double delimiter",
+			args: args{
+
+				file1:     "../inputs/doubledelimiter/file1.txt",
+				file2:     "../inputs/doubledelimiter/file2.txt",
+				delimiter: ",",
+			},
+			wantErr: false,
+			wantResult: []string{"f1", "g2", "f3", "g4", "f5", "g6", "f7",
+				"g8", "f9", "g12", "f11", "g14", "f13", "g20",
+				"f21", "g32", "g34", "g36"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -91,6 +105,7 @@ func TestInterleaveFiles(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(gotResult, tt.wantResult) {
+				fmt.Println("gotResult:", gotResult)
 				t.Errorf("InterleaveFiles() = %v, want %v", gotResult, tt.wantResult)
 			}
 		})

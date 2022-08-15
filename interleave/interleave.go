@@ -4,19 +4,19 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
+	"unicode"
 )
 
 type wordsList []string
 
 // InterleaveFiles interleave the files
-func InterleaveFiles(file1, file2, delimiter string) (result []string, err error) {
-	s1, err := readLines(file1, delimiter)
+func InterleaveFiles(file1, file2 string) (result []string, err error) {
+	s1, err := readLines(file1)
 	if err != nil {
 		return result, err
 	}
-	s2, err := readLines(file2, delimiter)
+	s2, err := readLines(file2)
 	if err != nil {
 		return result, err
 	}
@@ -37,7 +37,7 @@ func InterleaveFiles(file1, file2, delimiter string) (result []string, err error
 	return result, nil
 }
 
-func readLines(path, delimiter string) (wordsList, error) {
+func readLines(path string) (wordsList, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -48,23 +48,26 @@ func readLines(path, delimiter string) (wordsList, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		str := scanner.Text()
-		re_leadclose_whtsp := regexp.MustCompile(`^[\s\p{Zs}]+|[\s\p{Zs}]+$`)
-		re_inside_whtsp := regexp.MustCompile(`[\s\p{Zs}]{2,}`)
-		final := re_leadclose_whtsp.ReplaceAllString(str, "")
-		final = re_inside_whtsp.ReplaceAllString(final, " ")
-		words := strings.Split(final, delimiter)
+		f := func(c rune) bool {
+			return !unicode.IsLetter(c) && !unicode.IsNumber(c) && !unicode.IsSymbol(c)
+		}
+		words := strings.FieldsFunc(str, f)
 		lines = append(lines, words...)
-		// remove empty string
-		lines.delete("")
+		// remove strings with single length symbols
+		lines.removeSingleSymbols()
 	}
-	fmt.Println("Lines:", lines)
+	fmt.Println("Lines:", lines, len(lines))
 	return lines, nil
 }
 
-func (j *wordsList) delete(selector string) {
+func (j *wordsList) removeSingleSymbols() {
 	var r wordsList
 	for _, str := range *j {
-		if str != selector {
+
+		s := []rune(str)
+		if len(s) == 1 && unicode.IsSymbol(s[0]) {
+			continue
+		} else {
 			r = append(r, str)
 		}
 	}
